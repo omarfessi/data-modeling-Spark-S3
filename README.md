@@ -33,7 +33,7 @@ Important note, I set up the EMR cluster and S3 in the same region, this way It 
 - Launch an EMR cluster with the configuration you choose (either using the AWS Console or AWS CLI) and assign the key pair you created before (pem file). 
 - Edit your inbound rules in the security group and allow SSH access to your computer IP adress.
 - Open up a terminal and SSH to your cluster (please refer to summary page of your EMR cluster=> connect to Master Node using SSH under Master public DNS) 
-- Once connected to cluster via your terminal create a new file ( nano etl.py ) and copy paste the code in the etl.py I provided in this work. Or you can SCP your file from your local machine to your host machine.
+- Once connected to cluster via your terminal create a new file ( nano etl.py ) and copy paste the code in the etl.py I provided in this work. Or you can SCP your file from your local machine to your host machine (please refer to the txt file in the repoto be able to copy your file).
 - Create a new file called dl.cfg, copy and paste the content of my dl.cfg I provided and replace the blanks with your own credentials !! DO NOT explicitily plain write your credentials into to etl.py, do it my way and let the configParser do the job.
 - Submit your etl.py using the command ( spark-submit --master yarn etl.py) 
 - Depending on your EMR cluster configuration, the execution could take a while ( 12 minutes in my case ) 
@@ -41,10 +41,10 @@ Important note, I set up the EMR cluster and S3 in the same region, this way It 
 - For data quality you can launch a jupyter notebook on the EMR cluster and start playing with the dimentional table created in this work
 
 ## Attached files 
-etl.py : a python file you will be using in your EMR cluster !! YOU NEED TO CHANGE THE "output_file" with your own S3 outputfile 
-df.cfg : the configuration file that contains the IAM user ( keep the file's name & structure I use and replace the blanks with your own credentials)
-
-## !!! Do not forget to clean up the AWS resources otherwise you will be charged for a service you did not actually use, to do so terminate the EMR cluster and clean up your S3 buckets.
+- etl.py : a python file you will be using in your EMR cluster !! YOU NEED TO CHANGE THE "output_file" with your own S3 outputfile 
+- df.cfg : the configuration file that contains the IAM user ( keep the file's name & structure I use and replace the blanks with your own credentials)
+- scp-method.txt : to copy your local files into your host machine
+####  !!! Do not forget to clean up the AWS resources otherwise you will be charged for a service you did not actually use, to do so terminate the EMR cluster and clean up your S3 buckets.
 
 
 
