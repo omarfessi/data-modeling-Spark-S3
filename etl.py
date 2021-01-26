@@ -14,6 +14,10 @@ os.environ['AWS_ACCESS_KEY_ID']=config['AWS']['AWS_ACCESS_KEY_ID']
 os.environ['AWS_SECRET_ACCESS_KEY']=config['AWS']['AWS_SECRET_ACCESS_KEY']
 
 def create_spark_session():
+	"""
+    	Create a Spark session with a specific configuration that enables access to S3 
+    	Return a Spark preconfigured instance 
+    	"""
 	spark = SparkSession\
 			.builder\
 			.config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:2.7.0")\
@@ -21,17 +25,50 @@ def create_spark_session():
 	return spark
 
 def process_song_data(spark, input_data, output_data):
+	"""
+    	    Read and process the raw songs json data to extract only columns forming songs_table and artists_table
+ 	    Load the tables back to parquet files in S3 
+    	    Parameters : 
+
+            spark     : The SparkSession instance defined above
+            input_data: The S3 location prefix for raw data  
+            output    : The location path for parquets files 
+
+    	    Returns    :
+
+            Load tables in parquet files in the "output_data" location 
+   	 """
+    	# get filepath to the songs data file
 	song_data = input_data+'song_data/*/*/*/*.json'
+	# read the songs data file
 	df_songs  = spark.read.json(song_data)
+	# extract columns to create songs table
 	songs_table = df_songs.select('song_id','title','artist_id','year','duration').distinct()
+	#Write songs table to parquet files partionned by year and artist_id
 	songs_table.write.parquet(output_data+'songs.parquet', mode='overwrite', partitionBy=['year', 'artist_id'])
+
 	artists_table = df_songs.select('artist_id', 'artist_name', 'artist_location','artist_latitude', 'artist_longitude').distinct()
 	artists_table.write.parquet(output_data+'artists.parquet', mode='overwrite')
 	# Create a Temporary view from songs_data to use it later
 	df_songs.createOrReplaceTempView("songs_data")
 
 def process_log_data(spark, input_data, output_data):
+	"""
+    	Read and process the raw logs json data to extract only columns forming songs_table and artists_table
+    	Load the tables back to parquet files in S3 
+    	Parameters : 
+
+            spark     : The SparkSession instance defined above
+            input_data: The S3 location prefix for raw data  
+            output    : The location path for parquets files 
+
+    	Returns    :
+
+            Load tables in parquet files in the "output_data" location 
+    	"""
+    	# Get filepath to log data file
 	log_data = input_data+"log_data/*/*/*.json"
+
 	df_logs = spark.read.json(log_data)
 	# Filter by actions for song plays
 	df_logs = df_logs.where(col('page')=='NextSong')
@@ -77,6 +114,10 @@ def process_log_data(spark, input_data, output_data):
         songplays_table.write.parquet(output_data+'songplays.parquet', mode="overwrite",partitionBy=["year","month"])
 
 def main():
+	""" 
+    	Instanciate a SparkSession, load data from S3
+    	Make the necessary operations and transformation and load back the formed table to parquet files in S3
+    	"""
 	spark=create_spark_session()
 	input_data = "s3a://udacity-dend/"
 	output_data = "s3://spark-demo-data-modeling/
